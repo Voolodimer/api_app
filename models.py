@@ -14,7 +14,7 @@ class Product(MongoModel):
     #     self.description = description
     #     self.params = params
 
-    id = fields.IntegerField(primary_key=True, min_value=0)
+    id = fields.IntegerField(primary_key=True)
     product_name = fields.CharField()
     description = fields.CharField()
     params = fields.ListField()
