@@ -1,25 +1,14 @@
 from itertools import count
-
 from pymodm import MongoModel, fields
-from pymongo.write_concern import WriteConcern
-from pymongo import MongoClient
 
 
 class Product(MongoModel):
     _ids = count(0)
 
-    # def __init__(self):
-    #     self.id = next(self._ids)
-    #     self.product_name = product_name
-    #     self.description = description
-    #     self.params = params
-
     id = fields.IntegerField(primary_key=True)
     product_name = fields.CharField()
     description = fields.CharField()
     params = fields.ListField()
-
-    # write_concern = WriteConcern(j=True)
 
     @property
     def serialize(self):
@@ -36,5 +25,3 @@ class Product(MongoModel):
 
     def get_data(self, client_db):
         return list(client_db.db.products.find())
-
-

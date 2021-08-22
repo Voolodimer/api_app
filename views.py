@@ -69,7 +69,7 @@ def makeANewProduct(product_name, description, params):
     except DuplicateKeyError as dke:
         error_message = dumps({'message': 'duplicated key errpr: ' + str(dke)})
         abort(Response(error_message, 415))
-    client.db.products.insert_one(good.serialize)
+    good.save_data(client, good.serialize)
     return jsonify(good.serialize)
 
 
