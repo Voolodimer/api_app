@@ -71,5 +71,5 @@ curl -i -H "Accept: application/json" "192.168.0.110:5000/products/?arg1=product
 ...
 5. Получаем данные по параметру и значению:
 ```
-curl -i -H "Accept: application/json" "192.168.0.110:5000/products/?arg1=good_id&arg2=0"
+curl -i -H "Accept: application/json" "192.168.0.110:5000/products?arg1=good_id&arg2=0"
 ```
