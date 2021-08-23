@@ -24,8 +24,11 @@ def mainPage():
 def allProducts():
     """ Get all the goods that are in database or Add goods in DB """
     if request.method == 'GET':
-        return getAllProducts()
-
+        """ Sort Products by parameters. For example:
+             </products/?arg1=good_id&arg2=0> or
+             </products/?arg1=product_name>
+             """
+        return getSortProduct(request.full_path.split('?')[1])
     elif request.method == 'POST':
         # start to create a new product
         all_datas = request.get_json()
@@ -40,26 +43,10 @@ def allProducts():
         return makeANewProduct(product_name, description, params)
 
 
-@app.route('/products/')
-def sortProducts():
-    """ Sort Products by parameters. For example:
-     </products/?arg1=good_id&arg2=0> or
-     </products/?arg1=product_name>
-     """
-    return getSortProduct(request.full_path.split('?')[1])
-
-
 @app.route('/products/<int:id>', methods=['GET'])
 def productsDetailsId(id):
     """ Return all details of product by id"""
     return getProductById(id)
-
-
-def getAllProducts():
-    """ Get all goods in database """
-    all_products = [i for i in list(client.db.products.find())]
-    return render_template('columns.html', data=all_products)
-    # return json.dumps(all_products, default=str)
 
 
 def makeANewProduct(product_name, description, params):
