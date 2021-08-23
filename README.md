@@ -24,21 +24,17 @@ python3 views.py
 ### Команды
 #### GET-запросы
 
-- Для получения всех элементов базы данных необходимо ввести команду:
-```
- http://host:port/products
-```
 - Для получения информации о товаре, необходимо ввести его индекс:
 ```
  http://host:port/products/5
 ```
 - Для получения списка товаров сортированного параметру и значению:
 ```
- http://host:port/products/?arg1=good_id&arg2=0
+ http://host:port/products?arg1=good_id&arg2=0
 ```
 - Для получения списка товаров сортированного названию товара:
 ```
- http://host:port/products/?arg1=product_name
+ http://host:port/products?arg1=product_name
 ```
 #### POST-запросы
 Для передачи POST-запроса использовал утилиту curl
