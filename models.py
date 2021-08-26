@@ -3,7 +3,7 @@ from pymodm import MongoModel, fields
 
 
 class Product(MongoModel):
-    _ids = count(0)
+    ids = count(0)
 
     id = fields.IntegerField(primary_key=True)
     product_name = fields.CharField()
