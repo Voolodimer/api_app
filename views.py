@@ -49,7 +49,7 @@ def all_products():
     return jsonify(error_message)
 
 
-@app.route('/products/<int:id>', methods=['GET'])
+@app.route('/products/<int:product_id>', methods=['GET'])
 def products_details_id(product_id):
     """ Return all details of product by id"""
     return get_product_by_id(product_id)
@@ -74,7 +74,7 @@ def get_product_by_id(product_id):
     except (TypeError, IndexError):
         error_message = dumps({'message': 'good with id ' + str(product_id) + ' not found'})
         abort(Response(error_message, 415))
-    return dumps(list(client.db.products.find({'good_id': id}))[0], default=str)
+    return dumps(list(client.db.products.find({'good_id': product_id}))[0], default=str)
 
 
 def get_sort_product(sort):
@@ -93,7 +93,6 @@ def get_sort_product(sort):
 
     # params is a list of tuples (key-value)
     params = parse_qsl(sort)
-    # print(params[0][0])
     # if we get request like "/products" we will show all goods (without filter)
     if not params:
         docs = list(client.db.products.find())
@@ -102,15 +101,12 @@ def get_sort_product(sort):
     # if the passed parameter exists in 'parameters' list, we sort our db by key (params[0][0])
     if params[0][0] in parameters:
         docs = list(client.db.products.find())
-        print(docs)
-        # res = sorted(docs, key=lambda product: product[params[0][0]] == params[0][1])
         res = filter(lambda product: product[params[0][0]] == params[0][1], docs)
         return dumps(res)
 
     # if the passed parameter not exists in 'parameters' list, we sort our db by 'params'
     if params[0][0] not in parameters:
         docs = list(client.db.products.find())
-        print(docs)
         res = list(filter(lambda x: filter_func(x['params'], params[0][0], params[0][1]), docs))
         return dumps(res)
 
