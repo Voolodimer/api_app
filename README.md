@@ -23,53 +23,58 @@ python3 views.py
 
 ### Команды
 #### GET-запросы
-
-- Для получения информации о товаре, необходимо ввести его индекс:
+- Получить все товары из базы данных
+```
+http://host:port/products
+```
+- Для получения информации о товаре по индексу:
 ```
  http://host:port/products/5
 ```
-- Для получения списка товаров сортированного параметру и значению:
+- Для получения списка товаров фильтрованного имени товара:
 ```
- http://host:port/products?arg1=good_id&arg2=0
+ http://host:port/products?good_name=phone
 ```
-- Для получения списка товаров сортированного названию товара:
+- Для получения списка товаров фильтрованного по параметрам товара:
 ```
- http://host:port/products?arg1=product_name
+ http://host:port/products?motherboard=asus
 ```
 #### POST-запросы
 Для передачи POST-запроса использовал утилиту curl
 
 - Для добавления товара в базу данных:
 ```
-curl -i -H "Content-Type: application/json" -X POST -d '{"product_name":"phone", "description":"This is a new smartphone", "params":"[{"battery": "li-ion"}, {"display":"micromax a36"}]"}' 192.168.0.110:5000/products
+curl -i -H "Content-Type: application/json" -X POST -d '{"product_name":"phone", "description":"This is a new smartphone", "params":[{"battery": "li-ion"}, {"display":"micromax a36"}]}' host:port/products
+curl -i -H "Content-Type: application/json" -X POST -d '{"product_name":"computer", "description":"This is a new computer", "params":[{"memory":"32Gb"}, {"motherboard":"asus"}, {"processor": "Amd Ryzen"}]}' host:port/products
 ```
 На /products можно отправлять как GET так и POST-запросы
 
 ### Примеры
 
-1. Запускаем приложение и запускаем бд
+1. Запускаем микросервис и запускаем бд
 ```
+python3 views.py
 sudo docker run --name mongo1 -d --rm -p 27017:27017 mongo:4.4.5
 ```
 2. Наполним базу данных товарами при помощи curl (POST):
 ```
-curl -i -H "Content-Type: application/json" -X POST -d '{"product_name":"phone", "description":"This is a new smartphone xiaomi", "params":[{"battery":"li-ion"}, {"display":"micromax a36"}, {"memory": "64Gb"}]}' 192.168.0.110:5000/products
+curl -i -H "Content-Type: application/json" -X POST -d '{"product_name":"computer", "description":"This is a new computer", "params":[{"memory":"32Gb"}, {"motherboard":"asus"}, {"processor": "Amd Ryzen"}]}' 192.168.0.110:5000/products
+curl -i -H "Content-Type: application/json" -X POST -d '{"product_name":"phone", "description":"This is a new smartphone", "params":[{"battery": "li-ion"}, {"display":"micromax a36"}]}' 192.168.0.110:5000/products
+curl -i -H "Content-Type: application/json" -X POST -d '{"product_name":"computer", "description":"This is a new computer", "params":[{"memory":"16Gb"}, {"motherboard":"asus"}, {"processor": "intel"}]}' 192.168.0.110:5000/products
 ```
 3. Получаем товар с id 2
 ```
 curl -i -H "Accept: application/json" "192.168.0.110:5000/products/2"
 ```
-`>>> {"_id": {"$oid": "6122176e2d602b5b24fd76d9"}, "good_id": 2, "product_name": "phone", "description": "This is a new smartphone", "params":[{"battery":"li=ion"}]}
 
-4. Получаем все товары отсортированные по названию:
+4. Получаем все товары отфильтрованные по названию:
 ```
-curl -i -H "Accept: application/json" "192.168.0.110:5000/products/?arg1=product_name"
+curl -i -H "Accept: application/json" "192.168.0.110:5000/products?product_name=computer"
+curl -i -H "Accept: application/json" "192.168.0.110:5000/products?product_name=phone"
 ```
-[
-{"_id": {"$oid": "61227f753131dd3db6ce752a"}, "good_id": 11, "product_name": "book", "description": "nre book", "params": "123"},
-{"_id": {"$oid": "612211e0dfe1a8e8434c1833"}, "good_id": 0, "product_name": "phone", "description": "This is a new smartphone", "params": "{}"}]
-...
+
 5. Получаем данные по параметру и значению:
 ```
-curl -i -H "Accept: application/json" "192.168.0.110:5000/products?arg1=good_id&arg2=0"
+curl -i -H "Accept: application/json" "192.168.0.110:5000/products?battery=li-ion"
+curl -i -H "Accept: application/json" "192.168.0.110:5000/products?processor=intel"
 ```
