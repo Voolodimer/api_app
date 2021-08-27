@@ -1,3 +1,4 @@
+from itertools import count
 from urllib.parse import parse_qsl
 
 from bson.json_util import dumps
@@ -16,6 +17,8 @@ client = MongoClient("mongodb://0.0.0.0:27017")
 client.db.products.create_index([("good_id", pymongo.ASCENDING)], unique=True)  # step 1
 # print(list(client.db.products.index_information()))  # ['_id_', 'good_id_1']
 parameters = ['good_id', 'product_name', 'description', 'params']
+len_db = len(list(client.db.products.find()))
+Product.ids = count(len_db)
 
 
 @app.route('/')
@@ -42,7 +45,6 @@ def all_products():
             error_message = dumps({'message': 'element with parameters: '
                                               + str(key_err) + ' not found'})
             abort(Response(error_message, 415))
-
         return make_a_new_product(product_name, description, params)
 
     error_message = dumps({'message': 'Method ' + request.method + ' is not supports'})
@@ -92,23 +94,34 @@ def get_sort_product(sort):
             i += 1
 
     # params is a list of tuples (key-value)
-    params = parse_qsl(sort)
+    params = dict(parse_qsl(sort))
+    query_keys = list(params.keys())
+    docs = list(client.db.products.find())
+
     # if we get request like "/products" we will show all goods (without filter)
     if not params:
-        docs = list(client.db.products.find())
         return dumps(docs)
 
-    # if the passed parameter exists in 'parameters' list, we sort our db by key (params[0][0])
-    if params[0][0] in parameters:
-        docs = list(client.db.products.find())
-        res = filter(lambda product: product[params[0][0]] == params[0][1], docs)
-        return dumps(res)
+    # ff
+    for key in query_keys:
+        if key in parameters:
+            docs = list(filter(lambda product: product[key] == params[key], docs))
+        else:
+            docs = list(filter(lambda product: filter_func(product['params'], key, params[key]), docs))
 
-    # if the passed parameter not exists in 'parameters' list, we sort our db by 'params'
-    if params[0][0] not in parameters:
-        docs = list(client.db.products.find())
-        res = list(filter(lambda x: filter_func(x['params'], params[0][0], params[0][1]), docs))
-        return dumps(res)
+    return dumps(docs)
+
+    # # if the passed parameter exists in 'parameters' list, we sort our db by key (params[0][0])
+    # if params[0][0] in parameters:
+    #     docs = list(client.db.products.find())
+    #     res = filter(lambda product: product[params[0][0]] == params[0][1], docs)
+    #     return dumps(res)
+    #
+    # # if the passed parameter not exists in 'parameters' list, we sort our db by 'params'
+    # if params[0][0] not in parameters:
+    #     docs = list(client.db.products.find())
+    #     res = list(filter(lambda x: filter_func(x['params'], params[0][0], params[0][1]), docs))
+    #     return dumps(res)
 
     error_message = dumps({'message': 'parameters in URL: ' + str(sort) + ' are not valid'})
     abort(Response(error_message, 415))
