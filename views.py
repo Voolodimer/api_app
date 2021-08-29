@@ -100,31 +100,21 @@ def get_sort_product(sort):
 
     # if we get request like "/products" we will show all goods (without filter)
     if not params:
+        if not docs:
+            return jsonify({'message': 'Nothing found'})
         return dumps(docs)
 
-    # ff
+    # process all keys
     for key in query_keys:
         if key in parameters:
             docs = list(filter(lambda product: product[key] == params[key], docs))
         else:
             docs = list(filter(lambda product: filter_func(product['params'], key, params[key]), docs))
 
+    if not docs:
+        return jsonify({'message': 'Nothing found'})
+
     return dumps(docs)
-
-    # # if the passed parameter exists in 'parameters' list, we sort our db by key (params[0][0])
-    # if params[0][0] in parameters:
-    #     docs = list(client.db.products.find())
-    #     res = filter(lambda product: product[params[0][0]] == params[0][1], docs)
-    #     return dumps(res)
-    #
-    # # if the passed parameter not exists in 'parameters' list, we sort our db by 'params'
-    # if params[0][0] not in parameters:
-    #     docs = list(client.db.products.find())
-    #     res = list(filter(lambda x: filter_func(x['params'], params[0][0], params[0][1]), docs))
-    #     return dumps(res)
-
-    error_message = dumps({'message': 'parameters in URL: ' + str(sort) + ' are not valid'})
-    abort(Response(error_message, 415))
 
 
 if __name__ == '__main__':
