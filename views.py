@@ -1,3 +1,4 @@
+import sys
 from itertools import count
 from urllib.parse import parse_qsl
 
@@ -118,5 +119,18 @@ def get_sort_product(sort):
 
 
 if __name__ == '__main__':
-    app.debug = True
-    app.run(host='0.0.0.0', port=5000)
+    host_port = False
+    try:
+        host = sys.argv[1]
+        port = sys.argv[2]
+        host_port = True
+    except IndexError:
+        print("need to pass host and port")
+
+    if host_port:
+        app.debug = True
+        app.run(host=host, port=port)
+
+    else:
+        app.debug = True
+        app.run(host='0.0.0.0', port=5000)
