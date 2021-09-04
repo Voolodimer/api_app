@@ -12,7 +12,6 @@ from flask import Flask, request, jsonify
 
 from models import Product
 
-
 app = Flask(__name__)
 client = MongoClient("mongodb://0.0.0.0:27017")
 client.db.products.create_index([("good_id", pymongo.ASCENDING)], unique=True)  # step 1
@@ -93,16 +92,13 @@ def get_sort_product(sort):
             return jsonify({'message': 'Nothing found'})
         return dumps(docs)
 
-    # process all keys
+    # checks all keys, and rename rename keys that are not in the 'parameter' list
     for key in query_keys:
-        if key in parameters:
-            docs = list(client.db.products.find({key: params[key]}))
-        else:
-            old_key = key
-            key = 'params.' + key
-            docs = list(client.db.products.find({key: params[old_key]}))
-        if not docs:
-            break
+        if key not in parameters:
+            new_key = 'params.' + key
+            params[new_key] = params.pop(key)
+
+    docs = list(client.db.products.find({'$or': [params]}))
 
     if not docs:
         return jsonify({'message': 'Nothing found'})
