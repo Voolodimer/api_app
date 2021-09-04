@@ -82,18 +82,6 @@ def get_product_by_id(product_id):
 
 def get_sort_product(sort):
     """ Get sorted list using 'sort' parameters """
-    def filter_func(param, key, value):
-        """ filter list of parameters """
-        i = 0
-        while i < len(param):
-            try:
-                if param[i][key] == value:
-                    return True
-            except KeyError:
-                i += 1
-                continue
-            i += 1
-
     # params is a list of tuples (key-value)
     params = dict(parse_qsl(sort))
     query_keys = list(params.keys())
@@ -108,9 +96,13 @@ def get_sort_product(sort):
     # process all keys
     for key in query_keys:
         if key in parameters:
-            docs = list(filter(lambda product: product[key] == params[key], docs))
+            docs = list(client.db.products.find({key: params[key]}))
         else:
-            docs = list(filter(lambda product: filter_func(product['params'], key, params[key]), docs))
+            old_key = key
+            key = 'params.' + key
+            docs = list(client.db.products.find({key: params[old_key]}))
+        if not docs:
+            break
 
     if not docs:
         return jsonify({'message': 'Nothing found'})
